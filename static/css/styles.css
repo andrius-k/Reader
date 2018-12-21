@@ -1,0 +1,62 @@
+
+.jumbotron-heading {
+  font-weight: 300;
+}
+
+footer {
+  padding-top: 3rem;
+  padding-bottom: 3rem;
+}
+
+footer p {
+  margin-bottom: .25rem;
+}
+
+#title {
+    color: #484848;
+}
+
+#container {
+    line-height: 2em;
+    font-size: 14pt;
+    color: #484848;
+}
+
+.to-be-translated {
+    display: inline-block; 
+    position: relative;
+    text-align: center;
+    line-height: 20px;
+}
+
+.to-be-translated:hover {
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+.translated:hover {
+    cursor: pointer;
+}
+
+.translated {
+    display: inline-block; 
+    position: relative;
+    text-align: center;
+    line-height: 20px;
+}
+
+.translation {
+    display: inline; 
+    text-align: center;
+    color: green;
+}
+
+.original {
+    display: block; 
+    position: relative;
+    text-align: left;
+}
+
+.translated .original {
+    text-decoration: underline;
+}
