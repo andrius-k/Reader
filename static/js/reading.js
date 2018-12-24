@@ -178,9 +178,9 @@ function newTextChanged()
     newTextTitle.val(titleWords.join(" "))
 }
 
-$('#saved-texts-modal').on('show.bs.modal', drawSavedTextsModal)
+$('#saved-texts-modal').on('show.bs.modal', drawStoredTextsModal)
 
-function drawSavedTextsModal()
+function drawStoredTextsModal()
 {
     var modalElement = $("#saved-texts-modal-body")
     var texts = getStoredTexts()
@@ -188,12 +188,12 @@ function drawSavedTextsModal()
     // Reset content
     modalElement.html("")
 
-    texts.forEach(element => {
-        var shortText = element.text.split(" ").slice(0, 30).join(" ");
-        if(shortText.length < element.text.length)
+    texts.forEach(e => {
+        var shortText = e.text.split(" ").slice(0, 30).join(" ");
+        if(shortText.length < e.text.length)
             shortText += "..."
         
-        modalElement.append(getStyledTextListItem(element.title, shortText, element.id))
+        modalElement.append(getStyledTextListItem(e.title, shortText, e.id, e.sourceLanguage, e.targetLanguage))
     })
 
     if(texts.length == 0)
@@ -202,21 +202,22 @@ function drawSavedTextsModal()
     }
 }
 
-function getStyledTextListItem(title, text, id)
+function getStyledTextListItem(title, text, id, sl, tl)
 {
     return `
         <div class="media text-muted pt-3">
             <div class="container media-body pb-3 mb-0 small lh-125 border-bottom border-gray">
                 <div class="row pb-2">
-                <div class="col pl-0">
-                    <button type="button" class="btn btn-link btn-sm btn-saved-title p-0" onclick="startReadingSavedText(` + id + `)">` + title + `</button>
-                </div>
-                <div class="col-auto mt-auto mb-auto pr-0">
-                    <button type="button" class="btn btn-link btn-sm text-danger p-0" onclick="deleteSavedText(` + id + `)">Delete</button>
-                </div>
+                    <div class="col pl-0">
+                        <button type="button" class="btn btn-link btn-sm btn-saved-title p-0" onclick="startReadingSavedText(` + id + `)">` + title + `</button>
+                        <span class="font-italic">(` + sl + ` → ` + tl + `)</span>
+                    </div>
+                    <div class="col-auto mt-auto mb-auto pr-0">
+                        <button type="button" class="btn btn-link btn-sm text-danger p-0" onclick="deleteSavedText(` + id + `)">Delete</button>
+                    </div>
                 </div>
                 <div class="row">
-                <span class="d-block">` + text + `</span>
+                    <span class="d-block">` + text + `</span>
                 </div>
             </div>
         </div>`
@@ -227,7 +228,7 @@ function deleteSavedText(id)
     var needToRedrawMain = mainText.id == id
 
     deleteStoredText(id)
-    drawSavedTextsModal()
+    drawStoredTextsModal()
 
     if(needToRedrawMain)
         showStoredCurrentText()
@@ -244,13 +245,13 @@ function startReadingSavedText(id)
 
 function getStoredTexts()
 {
-    var texts = JSON.parse(localStorage.getItem("texts"))
+    var texts = JSON.parse(getStoredItem("texts"))
     return texts != null ? texts : []
 }
 
 function setStoredTexts(texts)
 {
-    localStorage.setItem("texts", JSON.stringify(texts))
+    setStoredItem("texts", JSON.stringify(texts))
 }
 
 function getCurrentStoredText()
