@@ -49,18 +49,18 @@
     <nav class="navbar navbar-expand-md navbar-dark bg-dark">
       <div class="container">
           <a href="#" class="navbar-brand d-flex align-items-center">
-            <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" class="mr-2"
+            <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px"
                 width="20" height="20"
                 viewBox="0 0 224 224"
                 style=" fill:#000000;"><g fill="none" fill-rule="nonzero" stroke="none" stroke-width="1" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="10" stroke-dasharray="" stroke-dashoffset="0" font-family="none" font-weight="none" font-size="none" text-anchor="none" style="mix-blend-mode: normal"><path d="M0,224v-224h224v224z" fill="none"></path><g fill="#ffffff"><g id="surface1"><path d="M26.88,8.96c-2.4675,0 -4.48,2.0125 -4.48,4.48v161.28c0,2.485 2.0125,4.48 4.48,4.48c54.0225,0 75.3725,12.0225 80.64,15.68v-165.06c-11.06,-8.5575 -34.86,-20.86 -80.64,-20.86zM197.12,8.96c-45.78,0 -69.58,12.3025 -80.64,20.86v165.06c5.2675,-3.6575 26.635,-15.68 80.64,-15.68c2.485,0 4.48,-1.995 4.48,-4.48v-161.28c0,-2.4675 -1.995,-4.48 -4.48,-4.48zM12.74,35.84c-7.035,0 -12.74,5.705 -12.74,12.74v149.24c0,7.035 5.705,12.74 12.74,12.74h74.48c3.185,4.3925 11.3225,13.44 24.78,13.44c13.4575,0 21.595,-9.0475 24.78,-13.44h74.48c7.035,0 12.74,-5.6875 12.74,-12.74v-149.24c0,-7.035 -5.705,-12.74 -12.74,-12.74h-0.7v138.88c0,7.4025 -6.0375,13.44 -13.44,13.44c-52.64,0 -72.2225,11.655 -75.6,14l-0.56,0.56c-3.115,2.4675 -4.55,6.44 -8.82,6.44c-4.27,0 -4.9875,-3.5875 -8.68,-6.16l-0.98,-0.84c-3.3775,-2.345 -22.925,-14 -75.6,-14c-7.4025,0 -13.44,-6.0375 -13.44,-13.44v-138.88z"></path></g></g></g></svg>
-            <strong>Reader</strong>
+            <strong class="ml-2">Reader</strong>
           </a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
           <span class="navbar-toggler-icon"></span>
         </button>
         
-        <div class="collapse navbar-collapse mt-2 mt-md-0" id="navbarSupportedContent">
-          <div class="navbar-btn row ml-auto">
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+          <div class="navbar-btn row ml-auto pt-2 pt-md-0">
             <select class="btn-secondary col" id="source-ln-select" onchange="languageChanged()">
               <option>IT</option>
               <option>FR</option>
@@ -78,9 +78,12 @@
               <option>DE</option>
               <option>ES</option>
             </select>
-    
-            <button type="button" class="btn btn-outline-info ml-4" data-toggle="modal" data-target="#new-text-modal">Add</button>
-            <button type="button" class="btn btn-outline-info ml-4 mr-3" data-toggle="modal" data-target="#new-text-modal">Texts</button>
+            
+            <div class="mr-3">
+              <button type="button" class="btn btn-outline-accent ml-3" data-toggle="modal" data-target="#new-text-modal">Add</button>
+              <button type="button" class="btn btn-outline-accent ml-3" data-toggle="modal" data-target="#saved-texts-modal">Texts</button>
+            </div>
+            
           </div>
             
         </div>
@@ -94,7 +97,6 @@
     <section class="text-center pt-5 pb-5">
       <div class="container">
         <h1 class="jumbotron-heading" id="title"></h1>
-        <!-- <p class="lead text-muted">Something short and leading about the collection below—its contents, the creator, etc. Make it short and sweet, but not too short so folks don't simply skip over it entirely.</p> -->
       </div>
     </section>
 
@@ -106,11 +108,7 @@
 
   <footer class="text-muted">
     <div class="container">
-      <!-- <p class="float-right">
-        <a href="#">Back to top</a>
-      </p>
-      <p>Album example is © Bootstrap, but please download and customize it for yourself!</p>
-      <p>New to Bootstrap? <a href="../../">Visit the homepage</a> or read our <a href="../../getting-started/">getting started guide</a>.</p> -->
+      <!-- Empty for now -->
     </div>
   </footer>
 
@@ -139,7 +137,26 @@
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-          <button type="button" class="btn btn-primary" onclick="startNewTextClicked();">Start reading</button>
+          <button type="button" class="btn btn-accent" onclick="startNewTextClicked();">Start reading</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="saved-texts-modal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">Previously saved texts</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body" id="saved-texts-modal-body">
+          <!-- Previously saved texts will go here -->
+        </div>
+        <div class="modal-footer border-0 pt-0">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
         </div>
       </div>
     </div>
@@ -150,7 +167,7 @@
     ================================================== -->
   <!-- Placed at the end of the document so the pages load faster -->
   <script src="static/js/popper.min.js"></script>
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+  <script src="static/js/jquery.min.js"></script>
   <script>window.jQuery || document.write('<script src="static/js/vendor/jquery.min.js"><\/script>')</script>
   <script src="static/js/bootstrap.min.js"></script>
 

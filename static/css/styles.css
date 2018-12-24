@@ -12,6 +12,41 @@ footer p {
   margin-bottom: .25rem;
 }
 
+.btn-outline-accent:hover {
+    color:white;
+    background-color: rgb(48, 149, 231);
+}
+
+.btn-outline-accent {
+    color:rgb(48, 149, 231);
+    background-color: transparent;
+    border-color: rgb(48, 149, 231);
+}
+
+.btn-accent:hover {
+    color:white;
+    background-color: rgb(37, 132, 192); /* 0, -17, -39 */
+    border-color: rgb(37, 132, 192); /* 0, -17, -39 */
+}
+
+.btn-accent {
+    color:white;
+    background-color: rgb(48, 149, 231);
+    border-color: rgb(48, 149, 231);
+}
+
+.btn-link {
+    font-size: 10pt;
+}
+
+.btn-saved-title {
+    font-weight: bolder;
+    color: #6c757d;
+    white-space: normal !important;
+    word-wrap: break-word;
+    text-align: left;
+}
+
 #title {
     color: #484848;
 }

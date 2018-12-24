@@ -1,33 +1,42 @@
 
-// Default text when no text is saved
-textTitle = "Migliori le tue abilità linguistiche!"
-text = "Clicchi sulle parole per vedere la traduzione."
-
-// var textTitle = "La mia casa a Roma"
-
-// var text = `
-// La mia casa a Roma
-// Mi chiamo Francesca e abito nel centro di Roma. La mia casa è un po’ piccola ma molto confortevole. Qui vivo con mio marito e i miei due figli. La porta della casa è di legno, mentre le pareti sono tutte colorate. La mia stanza preferita è la cucina.
-// Qui preparo tante cose buone per i miei bambini. Nella cucina ci sono un tavolo rotondo e quattro sedie. Nel soggiorno ci sono un divano, un mobile per la televisione e un tappeto. La sera mi rilasso sul divano con la mia famiglia.
-// La camera matrimoniale ha le pareti beige e un grande comò. Sul comò ci sono uno specchio, tre cornici con le foto e il mio profumo. La camera dei bambini ha le pareti celesti. In questa stanza ci sono una scrivania, due sedie, due letti e un grande armadio con quattro ante.
-// Il bagno è piccolo ma luminoso.`
-
-var sourceLanguage = "it"
-var targetLanguage = "en"
+var mainText = null
 
 $(document).ready(function() {
-    initiateLanguageSettings();
-    initiateText();
+    showStoredCurrentText()
+})
+
+function showStoredCurrentText()
+{
+    mainText = getCurrentStoredText()
+    setLanguageSelects()
     setupText()
-});
+}
+
+// ============= Language related stuff =============
+
+function setLanguageSelects()
+{
+    $("#source-ln-select").val(mainText.sourceLanguage.toUpperCase())
+    $("#target-ln-select").val(mainText.targetLanguage.toUpperCase())
+}
+
+function languageChanged()
+{
+    changeLnOfCurrentStoredText()
+
+    // Restart translating
+    setupText()
+}
+
+// ============= Text processing and presentation =============
 
 function setupText() 
 {
     var title = $("#title")
-    title.text(textTitle)
+    title.text(mainText.title)
 
     // Add break to every new line
-    processedText = text.replace(/(?:\r\n|\r|\n)/g, "\n ")
+    processedText = mainText.text.replace(/(?:\r\n|\r|\n)/g, "\n ")
 
     var words = processedText.split(" ")
 
@@ -100,7 +109,7 @@ async function phraseClicked(elementId)
 
 async function translatePhrase(phrase)
 {
-    var url = "https://translate.googleapis.com/translate_a/single?client=gtx&sl=" + sourceLanguage + "&tl=" + targetLanguage + "&dt=t&q=" + encodeURI(phrase)
+    var url = "https://translate.googleapis.com/translate_a/single?client=gtx&sl=" + mainText.sourceLanguage + "&tl=" + mainText.targetLanguage + "&dt=t&q=" + encodeURI(phrase)
     var response = await fetch(url)
     var result = await response.json()
     var translations = result[0]
@@ -136,6 +145,8 @@ function getJointPhrase(elementId) {
     return phraseElement
 }
 
+// ============= Popup event handlers =============
+
 function startNewTextClicked()
 {
     var newTextModal = $("#new-text-modal")
@@ -146,13 +157,9 @@ function startNewTextClicked()
     {
         newTextModal.modal('hide')
 
-        textTitle = newTextTitle.val()
-        text = newText.val()
+        mainText = addStoredText(newTextTitle.val(), newText.val())
 
-        // Save the text locally
-        localStorage.setItem("textTitle", textTitle)
-        localStorage.setItem("text", text)
-
+        // Populate UI with newly entered text
         setupText()
 
         newTextTitle.val("")
@@ -166,57 +173,196 @@ function newTextChanged()
     var newText = $("#new-text")
 
     var titleWords = newText.val().replace(/(?:\r\n|\r|\n)/g, " ").split(" ").slice(0, 5)
-    var titleWords = titleWords.filter(element => {
-        return element != "";
-    });
+    var titleWords = titleWords.filter(element => element != "");
     
     newTextTitle.val(titleWords.join(" "))
 }
 
-function initiateText()
-{
-    var savedTextTitle = localStorage.getItem('textTitle')
-    var savedText = localStorage.getItem('text')
+$('#saved-texts-modal').on('show.bs.modal', drawSavedTextsModal)
 
-    if(savedTextTitle != null && savedText != null)
+function drawSavedTextsModal()
+{
+    var modalElement = $("#saved-texts-modal-body")
+    var texts = getStoredTexts()
+
+    // Reset content
+    modalElement.html("")
+
+    texts.forEach(element => {
+        var shortText = element.text.split(" ").slice(0, 30).join(" ");
+        if(shortText.length < element.text.length)
+            shortText += "..."
+        
+        modalElement.append(getStyledTextListItem(element.title, shortText, element.id))
+    })
+
+    if(texts.length == 0)
     {
-        textTitle = savedTextTitle
-        text = savedText
+        modalElement.append(`<p class="font-italic text-secondary text-center">No stored texts right now. You can add them by clicking 'Add' in the header!</p>`)
     }
 }
 
-function initiateLanguageSettings()
+function getStyledTextListItem(title, text, id)
 {
-    // If preferred languages are saved - use them
-    var source = localStorage.getItem('sourceLanguage')
-    var target = localStorage.getItem('targetLanguage')
-
-    if(source != null && target != null)
-    {
-        $("#source-ln-select").val(source.toUpperCase())
-        $("#target-ln-select").val(target.toUpperCase())
-    }
-
-    readSelectedLanguages()
+    return `
+        <div class="media text-muted pt-3">
+            <div class="container media-body pb-3 mb-0 small lh-125 border-bottom border-gray">
+                <div class="row pb-2">
+                <div class="col pl-0">
+                    <button type="button" class="btn btn-link btn-sm btn-saved-title p-0" onclick="startReadingSavedText(` + id + `)">` + title + `</button>
+                </div>
+                <div class="col-auto mt-auto mb-auto pr-0">
+                    <button type="button" class="btn btn-link btn-sm text-danger p-0" onclick="deleteSavedText(` + id + `)">Delete</button>
+                </div>
+                </div>
+                <div class="row">
+                <span class="d-block">` + text + `</span>
+                </div>
+            </div>
+        </div>`
 }
 
-function readSelectedLanguages()
+function deleteSavedText(id)
 {
+    var needToRedrawMain = mainText.id == id
+
+    deleteStoredText(id)
+    drawSavedTextsModal()
+
+    if(needToRedrawMain)
+        showStoredCurrentText()
+}
+
+function startReadingSavedText(id)
+{
+    makeStoredTextCurrent(id)
+    showStoredCurrentText()
+    $('#saved-texts-modal').modal('hide')
+}
+
+// ============= Local storage access API =============
+
+function getStoredTexts()
+{
+    var texts = JSON.parse(localStorage.getItem("texts"))
+    return texts != null ? texts : []
+}
+
+function setStoredTexts(texts)
+{
+    localStorage.setItem("texts", JSON.stringify(texts))
+}
+
+function getCurrentStoredText()
+{
+    var texts = getStoredTexts()
+
+    // If no current text is stored the default will be returned
+    var title = "Migliori le tue abilità linguistiche!"
+    var text = "Clicchi sulle parole per vedere la traduzione."
+    var result = {
+        isCurrent: true,
+        sourceLanguage: "it",
+        targetLanguage: "en",
+        title: title,
+        text: text,
+        id: (title + title).hashCode()
+    }
+
+    texts.forEach(element => {
+        if(element.isCurrent)
+            result = element
+    })
+
+    return result
+}
+
+function addStoredText(title, text)
+{
+    var texts = getStoredTexts()
+
+    texts.forEach(element => {
+        element.isCurrent = false
+    })
+
     var sourceLnSelect = $("#source-ln-select")
     var targetLnSelect = $("#target-ln-select")
+    
+    var newText = {
+        isCurrent: true,
+        sourceLanguage: sourceLnSelect.val().toLowerCase(),
+        targetLanguage: targetLnSelect.val().toLowerCase(),
+        title: title,
+        text: text,
+        id: (title + title).hashCode()
+    }
 
-    sourceLanguage = sourceLnSelect.val().toLowerCase()
-    targetLanguage = targetLnSelect.val().toLowerCase()
+    texts.push(newText)
+    setStoredTexts(texts)
+
+    return newText
 }
 
-function languageChanged()
+function changeLnOfCurrentStoredText()
 {
-    readSelectedLanguages()
+    var texts = getStoredTexts()
 
-    // Save preferred languages locally
-    localStorage.setItem("sourceLanguage", sourceLanguage)
-    localStorage.setItem("targetLanguage", targetLanguage)
+    texts.forEach(element => {
+        if(element.isCurrent)
+        {
+            var sourceLnSelect = $("#source-ln-select")
+            var targetLnSelect = $("#target-ln-select")
 
-    // Restart translating
-    setupText()
+            element.sourceLanguage = sourceLnSelect.val().toLowerCase()
+            element.targetLanguage = targetLnSelect.val().toLowerCase()
+
+            setStoredTexts(texts)
+        }
+    })
 }
+
+function makeStoredTextCurrent(id)
+{
+    var texts = getStoredTexts()
+
+    texts.forEach(element => {
+        if(element.id == id)
+        {
+            element.isCurrent = true;
+        }
+        else
+        {
+            element.isCurrent = false;
+        }
+    })
+
+    setStoredTexts(texts)
+}
+
+function deleteStoredText(id)
+{
+    var texts = getStoredTexts()
+    var removed = texts.filter(e => e.id != id)
+
+    // If current text was removed, make random text current
+    if(removed.filter(e => e.isCurrent == true).length == 0)
+        if(removed.length > 0)
+            removed[0].isCurrent = true
+
+    setStoredTexts(removed)
+}
+
+// ============= Helpers =============
+
+String.prototype.hashCode = function() 
+{
+    var hash = 0, i, chr;
+    if (this.length === 0) return hash;
+    for (i = 0; i < this.length; i++) 
+    {
+        chr = this.charCodeAt(i);
+        hash = ((hash << 5) - hash) + chr;
+        hash |= 0; // Convert to 32bit integer
+    }
+    return hash.toString();
+};
