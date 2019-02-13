@@ -24,6 +24,8 @@ function languageChanged()
 {
     changeLnOfCurrentStoredText()
 
+    mainText = getCurrentStoredText()
+    
     // Restart translating
     setupText()
 }
